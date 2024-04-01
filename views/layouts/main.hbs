@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="RU">
+    <head>
+        {{#if isLoggedIn}}
+            <p>Добро пожаловать, пользователь!</p>
+        {{else}}
+            <p>Пожалуйста, войдите в систему.</p>
+        {{/if}}
+
+        {{{ head }}}
+    </head>
+    <body class="background_page">
+        {{{ body }}}
+    </body>
+    <footer>
+        {{{ footer  }}}
+    </footer>
+</html>
