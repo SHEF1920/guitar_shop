@@ -7,7 +7,6 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-// декоратор
 @Injectable()
 export class TimeInterceptor implements NestInterceptor {
   // intercept - перхватывет запрос и обрабатывает его
