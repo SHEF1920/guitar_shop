@@ -9,7 +9,6 @@ import { map } from 'rxjs/operators';
 
 @Injectable()
 export class TimeInterceptor implements NestInterceptor {
-  // intercept - перхватывет запрос и обрабатывает его
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
     return next
