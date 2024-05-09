@@ -5,18 +5,19 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
+// декоратор
 @Injectable()
-export class LoggingInterceptor implements NestInterceptor {
+export class TimeInterceptor implements NestInterceptor {
+  // intercept - перхватывет запрос и обрабатывает его
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
-    return next.handle().pipe(
-      tap(() => {
-        const response = context.switchToHttp().getResponse();
-        const duration = Date.now() - now;
-        response.header('Processing-Time', `${duration}ms`);
-      }),
-    );
+    return next
+      .handle()
+      .pipe(map((data) => ({ ...data, backendTime: Date.now() - now })));
+    // цепочка обработки запросов
+    // функция tap() выполняется после завершения обработки запроса и добавляет HTTP заголовок Server-Timing к ответу
+    // При этом результат выполнения next.handle() не изменяется
   }
 }
