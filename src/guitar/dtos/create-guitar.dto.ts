@@ -1,5 +1,14 @@
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CreateGuitarDto {
-  readonly brand: string;
-  readonly model: string;
-  readonly price: number;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  price: number;
+
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 }

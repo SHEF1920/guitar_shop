@@ -1,5 +1,14 @@
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CreateCommentDto {
-  readonly guitarId: number;
-  readonly content: string;
-  readonly authorName: string;
+  @IsNotEmpty()
+  @IsNumber()
+  guitarId: number;
+
+  @IsNotEmpty()
+  @IsString()
+  content: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  userId: number;
 }

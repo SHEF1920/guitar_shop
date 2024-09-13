@@ -7,11 +7,13 @@ import { GuitarModule } from './guitar/guitar.module';
 import { OrderModule } from './order/order.module';
 import { CommentModule } from './comment/comment.module';
 import { UserModule } from './user/user.module';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   imports: [GuitarModule, OrderModule, CommentModule, UserModule],
   controllers: [AppController],
   providers: [
+    PrismaService,
     AppService,
     {
       provide: APP_INTERCEPTOR,

@@ -1,18 +1,23 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateGuitarDto } from './dtos/create-guitar.dto';
-//import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class GuitarService {
-  private guitars = [];
+  constructor(private prisma: PrismaService) {}
 
-  createGuitar(createGuitarDto: CreateGuitarDto) {
-    const newGuitar = { id: Date.now(), ...createGuitarDto };
-    this.guitars.push(newGuitar);
+  async createGuitar(createGuitarDto: CreateGuitarDto) {
+    const newGuitar = await this.prisma.guitar.create({
+      data: {
+        name: createGuitarDto.name,
+        price: createGuitarDto.price,
+        description: createGuitarDto.description,
+      },
+    });
     return newGuitar;
   }
 
-  findAllGuitars() {
-    return this.guitars;
+  async findAllGuitars() {
+    return this.prisma.guitar.findMany();
   }
 }

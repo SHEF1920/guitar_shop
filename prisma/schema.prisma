@@ -12,8 +12,9 @@ model Guitar {
   name        String
   price       Float
   description String
-  updatedAt   DateTime  @updatedAt
-  order       Order[]
+  //updatedAt   DateTime  @updatedAt
+  order       Order?   @relation(fields: [orderId], references: [id])
+  orderId     Int?     // Связь с заказом
   comments    Comment[]
 }
 
