@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service'; // Путь к PrismaService
+import { PrismaService } from '../prisma/prisma.service';
 import { Order } from '@prisma/client';
-import { CreateOrderDto } from './dtos/create-order.dto'; // Импорт DTO
+import { CreateOrderDto } from './dtos/create-order.dto';
+import { AddGuitarToOrderDto } from './dtos/add-guitar-to-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -11,14 +12,14 @@ export class OrderService {
   async getOrder(orderId: number): Promise<Order | null> {
     return this.prisma.order.findUnique({
       where: { id: orderId },
-      //include: { guitars: true }, // Включаем связанные гитары
+      include: { guitars: true }, // Включаем связанные гитары
     });
   }
 
   // Получить список всех заказов
   async getOrders(): Promise<Order[]> {
     return this.prisma.order.findMany({
-      //include: { guitars: true }, // Включаем связанные гитары
+      include: { guitars: true }, // Включаем связанные гитары
     });
   }
 
@@ -63,10 +64,40 @@ export class OrderService {
     });
   }
 
-  // Удалить заказ
-  async deleteOrder(orderId: number): Promise<Order> {
-    return this.prisma.order.delete({
+  async addGuitarToOrder(
+    addGuitarToOrderDto: AddGuitarToOrderDto,
+  ): Promise<Order> {
+    const { orderId, guitarId } = addGuitarToOrderDto;
+
+    // Проверяем, что заказ существует
+    const order = await this.prisma.order.findUnique({
       where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // Проверяем, что гитара не принадлежит другому заказу
+    const guitar = await this.prisma.guitar.findUnique({
+      where: { id: guitarId },
+    });
+
+    if (!guitar || guitar.orderId) {
+      throw new Error('Guitar is already in another order or does not exist');
+    }
+
+    // Обновляем заказ, добавляя в него гитару
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        guitars: {
+          connect: { id: guitarId },
+        },
+      },
+      include: {
+        guitars: true, // Включаем информацию о гитарах в ответе
+      },
     });
   }
 }

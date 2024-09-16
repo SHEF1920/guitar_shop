@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateGuitarDto } from './dtos/create-guitar.dto';
 
@@ -19,5 +19,31 @@ export class GuitarService {
 
   async findAllGuitars() {
     return this.prisma.guitar.findMany();
+  }
+
+  async findGuitarById(id: number) {
+    const guitar = await this.prisma.guitar.findUnique({
+      where: { id },
+    });
+
+    if (!guitar) {
+      throw new NotFoundException(`Guitar with ID ${id} not found`);
+    }
+
+    return guitar;
+  }
+
+  async deleteGuitar(id: number) {
+    const guitar = await this.prisma.guitar.findUnique({
+      where: { id },
+    });
+
+    if (!guitar) {
+      throw new NotFoundException(`Guitar with ID ${id} not found`);
+    }
+
+    return this.prisma.guitar.delete({
+      where: { id },
+    });
   }
 }
