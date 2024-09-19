@@ -2,11 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as process from 'process';
-
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as hbs from 'express-handlebars';
 import { TimeInterceptor } from './interceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -27,15 +27,14 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Guitar Shop')
-    .setDescription('Guitar Shop API description')
+    .setDescription('Online store with unique guitars')
     .setVersion('1.0')
-    // .addTag('user')
-    // .addTag('guitar')
-    // .addTag('order')
-    // .addTag('comment')
+    //.addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  app.useGlobalPipes(new ValidationPipe());
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);

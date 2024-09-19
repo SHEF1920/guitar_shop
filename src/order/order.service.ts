@@ -25,7 +25,7 @@ export class OrderService {
 
   // Создать новый заказ, используя CreateOrderDto
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { total, userId, guitarIds } = createOrderDto;
+    const { userId, guitarIds } = createOrderDto;
 
     // Проверяем, что гитары не уже связаны с другими заказами
     for (const guitarId of guitarIds) {
@@ -39,6 +39,14 @@ export class OrderService {
         );
       }
     }
+
+    const guitars = await this.prisma.guitar.findMany({
+      where: { id: { in: guitarIds } },
+      select: { price: true },
+    });
+
+    // Вычисляем итоговую сумму заказа (total)
+    const total = guitars.reduce((acc, guitar) => acc + guitar.price, 0);
 
     return this.prisma.order.create({
       data: {

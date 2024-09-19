@@ -5,11 +5,13 @@ import {
   Get,
   Param,
   Delete,
-  ParseIntPipe,
+  UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../guards/auth.guard';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -21,6 +23,7 @@ export class CommentController {
     status: 201,
     description: 'The comment has been successfully created.',
   })
+  @UseGuards(AuthGuard)
   @Post()
   createComment(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.createComment(createCommentDto);
@@ -45,8 +48,13 @@ export class CommentController {
     status: 404,
     description: 'Comment not found.',
   })
+  @UseGuards(AuthGuard)
   @Delete('/:id')
-  deleteComment(@Param('id', ParseIntPipe) id: number) {
-    return this.commentService.deleteComment(id);
+  async deleteComment(@Param('id') id: number) {
+    const result = await this.commentService.deleteComment(Number(id));
+    if (!result) {
+      throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+    return { message: `Comment with ID ${id} deleted successfully` };
   }
 }
