@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
+import { Comment } from '@prisma/client';
 
 @Injectable()
 export class CommentService {
@@ -18,12 +19,21 @@ export class CommentService {
   }
 
   // Получить все комментарии
-  async findAllComments() {
+  async findAllComments(params: { skip?: number; take?: number }) {
+    const { skip, take } = params;
     return this.prisma.comment.findMany({
+      skip,
+      take,
       include: {
         guitar: true, // Включаем информацию о гитаре
         user: true, // Включаем информацию о пользователе
       },
+    });
+  }
+
+  async getCommentsByGuitar(guitarId: number): Promise<Comment[]> {
+    return this.prisma.comment.findMany({
+      where: { guitarId },
     });
   }
 

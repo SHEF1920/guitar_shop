@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
+import {Controller, Post, Body, Get, Param, Put, Query} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -23,16 +23,40 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'Returns all users.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        password: { type: 'string' },
+      },
+    },
   })
-  @Get('/:userId')
-  findAll() {
-    return this.userService.findAllUsers();
+  @Get()
+  findAll(
+    @Query('skip') skip?: number, // Параметры для пагинации
+    @Query('take') take?: number,
+  ) {
+    return this.userService.findAllUsers({
+      skip: Number(skip) || 0, // Значение по умолчанию — 0
+      take: Number(take) || 10, // Значение по умолчанию — 10
+    });
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({
     status: 200,
     description: 'Returns a user by ID.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        password: { type: 'string' },
+      },
+    },
   })
   @Get('/:id')
   findUserById(@Param('id') id: string) {

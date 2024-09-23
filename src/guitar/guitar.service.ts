@@ -17,8 +17,13 @@ export class GuitarService {
     return newGuitar;
   }
 
-  async findAllGuitars() {
-    return this.prisma.guitar.findMany();
+  async findAllGuitars(params: { skip?: number; take?: number }) {
+    const { skip, take } = params;
+
+    return this.prisma.guitar.findMany({
+      skip,
+      take,
+    });
   }
 
   async findGuitarById(id: number) {

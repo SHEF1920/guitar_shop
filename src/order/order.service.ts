@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Order } from '@prisma/client';
 import { CreateOrderDto } from './dtos/create-order.dto';
@@ -17,8 +17,11 @@ export class OrderService {
   }
 
   // Получить список всех заказов
-  async getOrders(): Promise<Order[]> {
+  async getOrders(params: { skip?: number; take?: number }): Promise<Order[]> {
+    const { skip, take } = params;
     return this.prisma.order.findMany({
+      skip,
+      take,
       include: { guitars: true }, // Включаем связанные гитары
     });
   }
@@ -26,7 +29,6 @@ export class OrderService {
   // Создать новый заказ, используя CreateOrderDto
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const { userId, guitarIds } = createOrderDto;
-
     // Проверяем, что гитары не уже связаны с другими заказами
     for (const guitarId of guitarIds) {
       const guitar = await this.prisma.guitar.findUnique({
@@ -34,7 +36,7 @@ export class OrderService {
       });
 
       if (guitar && guitar.orderId) {
-        throw new Error(
+        throw new ConflictException(
           `Guitar with ID ${guitarId} is already in another order`,
         );
       }
@@ -48,6 +50,9 @@ export class OrderService {
     // Вычисляем итоговую сумму заказа (total)
     const total = guitars.reduce((acc, guitar) => acc + guitar.price, 0);
 
+    // if (!guitarIds || guitarIds.length === 0) {
+    //   throw new BadRequestException('Order must contain at least one guitar');
+    // }
     return this.prisma.order.create({
       data: {
         total,
@@ -59,6 +64,18 @@ export class OrderService {
         },
       },
     });
+  }
+
+  async findOrderById(id: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    return order;
   }
 
   // Обновить существующий заказ
