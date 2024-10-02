@@ -7,12 +7,14 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
-  NotFoundException, Query,
+  NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../guards/auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -28,7 +30,8 @@ export class CommentController {
     status: 403,
     description: 'The user does not have access to create a comment.',
   })
-  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
   createComment(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.createComment(createCommentDto);
@@ -101,7 +104,8 @@ export class CommentController {
     status: 404,
     description: 'Comment not found.',
   })
-  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   async deleteComment(@Param('id') id: number) {
     const result = await this.commentService.deleteComment(Number(id));

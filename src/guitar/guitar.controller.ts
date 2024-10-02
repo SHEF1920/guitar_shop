@@ -12,7 +12,8 @@ import {
 import { GuitarService } from './guitar.service';
 import { CreateGuitarDto } from './dtos/create-guitar.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../guards/auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Guitar')
 @Controller('guitar')
@@ -28,7 +29,8 @@ export class GuitarController {
     status: 403,
     description: 'The user does not have access to create an order.',
   })
-  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createGuitarDto: CreateGuitarDto) {
     return this.guitarService.createGuitar(createGuitarDto);
@@ -93,7 +95,8 @@ export class GuitarController {
     status: 403,
     description: 'The user does not have access to delete an order.',
   })
-  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   deleteGuitar(@Param('id', ParseIntPipe) id: number) {
     return this.guitarService.deleteGuitar(id);

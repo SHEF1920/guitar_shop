@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    {{> head}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <title>Чат</title>
+    {{{ head }}}
+    <script src="/socket.io/socket.io.js"></script> <!-- Подключаем Socket.IO -->
+<!--    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>-->
+    <script>
+        const socket = io(); // Подключение к серверу WebSocket
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('send').onclick = function() {
+                const user = document.getElementById('user').value;
+                const content = document.getElementById('message').value;
+                socket.emit('sendMessage', { user, content }); // Отправка сообщения
+                //document.getElementById('message').value = ''; // Очищаем поле ввода
+            };
+
+            socket.once('receiveMessage', function(message) {
+                const messageElement = document.createElement('div'); // Создаем новый элемент для сообщения
+                messageElement.textContent = `${message.user}: ${message.content}`; // Заполняем его текстом
+                document.getElementById('messages').appendChild(messageElement); // Добавляем его в div с id 'messages'
+            });
+        });
+    </script>
+</head>
+<body>
+<header>
+    {{> nav}} <!-- Подключаем навигацию -->
+</header>
+<main>
+    <h2>Чат</h2>
+    <div id="chat">
+        <div id="messages" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll;"></div> <!-- Здесь будут отображаться сообщения -->
+        <input id="user" type="text" placeholder="Ваше имя" />
+        <input id="message" type="text" placeholder="Сообщение" />
+        <button id="send">Отправить</button>
+    </div>
+</main>
+<footer>
+    {{{ footer }}}
+</footer>
+</body>
+</html>

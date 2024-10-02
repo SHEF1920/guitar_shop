@@ -4,7 +4,8 @@ import {
   Body,
   Get,
   Param,
-  ParseIntPipe, Query,
+  ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dtos/create-order.dto';

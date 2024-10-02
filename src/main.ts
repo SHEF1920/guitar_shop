@@ -8,6 +8,10 @@ import * as hbs from 'express-handlebars';
 import { TimeInterceptor } from './interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { AuthMiddleware } from './auth/auth.middleware';
+import * as cookieParser from 'cookie-parser';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -26,11 +30,17 @@ async function bootstrap() {
     }),
   );
 
+  app.use(cookieParser());
+  app.use(new AuthMiddleware().use);
+  app.enableCors({
+    origin: 'http://localhost:5000',
+    credentials: true,
+  });
   const config = new DocumentBuilder()
     .setTitle('Guitar Shop')
     .setDescription('Online store with unique guitars')
     .setVersion('1.0')
-    //.addBearerAuth()
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
